@@ -40,6 +40,9 @@ import io.airbyte.protocol.models.ConfiguredAirbyteCatalog;
 import io.airbyte.scheduler.models.IntegrationLauncherConfig;
 import io.airbyte.scheduler.models.JobRunConfig;
 import io.temporal.client.WorkflowClient;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -65,11 +68,13 @@ class TemporalClientTest {
 
   private WorkflowClient workflowClient;
   private TemporalClient temporalClient;
+  private Path workspaceRoot;
 
   @BeforeEach
-  void setup() {
+  void setup() throws IOException {
+    workspaceRoot = Files.createTempDirectory(Path.of("/tmp"), "temporal_client_test");
     workflowClient = mock(WorkflowClient.class);
-    temporalClient = new TemporalClient(workflowClient);
+    temporalClient = new TemporalClient(workflowClient, workspaceRoot);
   }
 
   @Test

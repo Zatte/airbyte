@@ -47,8 +47,7 @@ public interface CheckConnectionWorkflow {
   @WorkflowMethod
   StandardCheckConnectionOutput run(JobRunConfig jobRunConfig,
                                     IntegrationLauncherConfig launcherConfig,
-                                    StandardCheckConnectionInput connectionConfiguration)
-      throws TemporalJobException;
+                                    StandardCheckConnectionInput connectionConfiguration);
 
   class WorkflowImpl implements CheckConnectionWorkflow {
 
@@ -61,8 +60,7 @@ public interface CheckConnectionWorkflow {
     @Override
     public StandardCheckConnectionOutput run(JobRunConfig jobRunConfig,
                                              IntegrationLauncherConfig launcherConfig,
-                                             StandardCheckConnectionInput connectionConfiguration)
-        throws TemporalJobException {
+                                             StandardCheckConnectionInput connectionConfiguration) {
       return activity.run(jobRunConfig, launcherConfig, connectionConfiguration);
     }
 
@@ -74,8 +72,7 @@ public interface CheckConnectionWorkflow {
     @ActivityMethod
     StandardCheckConnectionOutput run(JobRunConfig jobRunConfig,
                                       IntegrationLauncherConfig launcherConfig,
-                                      StandardCheckConnectionInput connectionConfiguration)
-        throws TemporalJobException;
+                                      StandardCheckConnectionInput connectionConfiguration);
 
   }
 
@@ -91,8 +88,7 @@ public interface CheckConnectionWorkflow {
 
     public StandardCheckConnectionOutput run(JobRunConfig jobRunConfig,
                                              IntegrationLauncherConfig launcherConfig,
-                                             StandardCheckConnectionInput connectionConfiguration)
-        throws TemporalJobException {
+                                             StandardCheckConnectionInput connectionConfiguration) {
       return new TemporalAttemptExecution<>(workspaceRoot, jobRunConfig, (jobRoot) -> {
         final IntegrationLauncher integrationLauncher = new AirbyteIntegrationLauncher(
             launcherConfig.getJobId(),

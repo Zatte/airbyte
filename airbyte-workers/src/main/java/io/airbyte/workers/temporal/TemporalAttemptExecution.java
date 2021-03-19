@@ -30,8 +30,8 @@ import io.airbyte.commons.functional.CheckedFunction;
 import io.airbyte.commons.functional.CheckedSupplier;
 import io.airbyte.config.EnvConfigs;
 import io.airbyte.scheduler.models.JobRunConfig;
-import io.airbyte.workers.WorkerConstants;
 import io.airbyte.workers.WorkerUtils;
+import io.temporal.activity.Activity;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -64,7 +64,7 @@ public class TemporalAttemptExecution<T> implements CheckedSupplier<T, TemporalJ
                                   CheckedFunction<Path, T, Exception> execution,
                                   BiConsumer<Path, String> mdcSetter,
                                   CheckedConsumer<Path, IOException> jobRootDirCreator) {
-    this.jobRoot = WorkerUtils.getJobRoot(workspaceRoot, jobRunConfig.getJobId(), jobRunConfig.getAttemptId());
+    this.jobRoot = WorkerUtils.getJobRoot(workspaceRoot, jobRunConfig);
     this.execution = execution;
     this.jobId = jobRunConfig.getJobId();
     this.mdcSetter = mdcSetter;
@@ -72,7 +72,7 @@ public class TemporalAttemptExecution<T> implements CheckedSupplier<T, TemporalJ
   }
 
   @Override
-  public T get() throws TemporalJobException {
+  public T get() {
     try {
       mdcSetter.accept(jobRoot, jobId);
 
@@ -80,10 +80,8 @@ public class TemporalAttemptExecution<T> implements CheckedSupplier<T, TemporalJ
       jobRootDirCreator.accept(jobRoot);
 
       return execution.apply(jobRoot);
-    } catch (TemporalJobException e) {
-      throw e;
     } catch (Exception e) {
-      throw new TemporalJobException(jobRoot.resolve(WorkerConstants.LOG_FILENAME), e);
+      throw Activity.wrap(e);
     }
   }
 

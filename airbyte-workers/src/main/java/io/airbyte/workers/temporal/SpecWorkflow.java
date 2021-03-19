@@ -45,7 +45,7 @@ import java.time.Duration;
 public interface SpecWorkflow {
 
   @WorkflowMethod
-  ConnectorSpecification run(JobRunConfig jobRunConfig, IntegrationLauncherConfig launcherConfig) throws TemporalJobException;
+  ConnectorSpecification run(JobRunConfig jobRunConfig, IntegrationLauncherConfig launcherConfig);
 
   class WorkflowImpl implements SpecWorkflow {
 
@@ -56,7 +56,7 @@ public interface SpecWorkflow {
     private final SpecActivity activity = Workflow.newActivityStub(SpecActivity.class, options);
 
     @Override
-    public ConnectorSpecification run(JobRunConfig jobRunConfig, IntegrationLauncherConfig launcherConfig) throws TemporalJobException {
+    public ConnectorSpecification run(JobRunConfig jobRunConfig, IntegrationLauncherConfig launcherConfig) {
       return activity.run(jobRunConfig, launcherConfig);
     }
 
@@ -66,7 +66,7 @@ public interface SpecWorkflow {
   interface SpecActivity {
 
     @ActivityMethod
-    ConnectorSpecification run(JobRunConfig jobRunConfig, IntegrationLauncherConfig launcherConfig) throws TemporalJobException;
+    ConnectorSpecification run(JobRunConfig jobRunConfig, IntegrationLauncherConfig launcherConfig);
 
   }
 
@@ -80,7 +80,7 @@ public interface SpecWorkflow {
       this.workspaceRoot = workspaceRoot;
     }
 
-    public ConnectorSpecification run(JobRunConfig jobRunConfig, IntegrationLauncherConfig launcherConfig) throws TemporalJobException {
+    public ConnectorSpecification run(JobRunConfig jobRunConfig, IntegrationLauncherConfig launcherConfig) {
       return new TemporalAttemptExecution<>(workspaceRoot, jobRunConfig, (jobRoot) -> {
 
         final IntegrationLauncher integrationLauncher =

@@ -38,6 +38,7 @@ import io.airbyte.workers.WorkerConstants;
 import io.airbyte.workers.temporal.TemporalClient;
 import io.airbyte.workers.temporal.TemporalJobException;
 import io.airbyte.workers.temporal.TemporalJobType;
+import io.airbyte.workers.temporal.TemporalResponse;
 import io.temporal.failure.TemporalException;
 import java.nio.file.Path;
 
@@ -64,8 +65,8 @@ public class TemporalWorkerRunFactory {
     return switch (job.getConfigType()) {
       case SYNC -> () -> {
         return toOutputAndStatus(() -> {
-          final StandardSyncOutput output = temporalClient.submitSync(job.getId(), attemptId, job.getConfig().getSync());
-          return new JobOutput().withSync(output);
+          final TemporalResponse<StandardSyncOutput> output = temporalClient.submitSync(job.getId(), attemptId, job.getConfig().getSync());
+          return new JobOutput().withSync(output.getOutput());
         });
       };
       case RESET_CONNECTION -> () -> {
@@ -79,8 +80,8 @@ public class TemporalWorkerRunFactory {
               .withDestinationConfiguration(resetConnection.getDestinationConfiguration())
               .withConfiguredAirbyteCatalog(resetConnection.getConfiguredAirbyteCatalog());
 
-          final StandardSyncOutput output = temporalClient.submitSync(job.getId(), attemptId, config);
-          return new JobOutput().withSync(output);
+          final TemporalResponse<StandardSyncOutput> output = temporalClient.submitSync(job.getId(), attemptId, config);
+          return new JobOutput().withSync(output.getOutput());
         });
       };
       default -> throw new IllegalArgumentException("Does not support job type: " + temporalJobType);

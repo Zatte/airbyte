@@ -59,7 +59,7 @@ public class TemporalClient {
     this.workspaceRoot = workspaceRoot;
   }
 
-  public ConnectorSpecification submitGetSpec(UUID jobId, int attempt, JobGetSpecConfig config) throws TemporalJobException {
+  public TemporalResponse<ConnectorSpecification> submitGetSpec(UUID jobId, int attempt, JobGetSpecConfig config) {
     final JobRunConfig jobRunConfig = TemporalUtils.createJobRunConfig(jobId, attempt);
 
     final IntegrationLauncherConfig launcherConfig = new IntegrationLauncherConfig()
@@ -71,7 +71,7 @@ public class TemporalClient {
 
   }
 
-  public StandardCheckConnectionOutput submitCheckConnection(UUID jobId, int attempt, JobCheckConnectionConfig config) throws TemporalJobException {
+  public TemporalResponse<StandardCheckConnectionOutput> submitCheckConnection(UUID jobId, int attempt, JobCheckConnectionConfig config) {
     final JobRunConfig jobRunConfig = TemporalUtils.createJobRunConfig(jobId, attempt);
     final IntegrationLauncherConfig launcherConfig = new IntegrationLauncherConfig()
         .withJobId(jobId.toString())
@@ -83,7 +83,7 @@ public class TemporalClient {
         () -> getWorkflowStub(CheckConnectionWorkflow.class, TemporalJobType.CHECK_CONNECTION).run(jobRunConfig, launcherConfig, input));
   }
 
-  public AirbyteCatalog submitDiscoverSchema(UUID jobId, int attempt, JobDiscoverCatalogConfig config) throws TemporalJobException {
+  public TemporalResponse<AirbyteCatalog> submitDiscoverSchema(UUID jobId, int attempt, JobDiscoverCatalogConfig config) {
     final JobRunConfig jobRunConfig = TemporalUtils.createJobRunConfig(jobId, attempt);
     final IntegrationLauncherConfig launcherConfig = new IntegrationLauncherConfig()
         .withJobId(jobId.toString())
@@ -95,7 +95,7 @@ public class TemporalClient {
         () -> getWorkflowStub(DiscoverCatalogWorkflow.class, TemporalJobType.DISCOVER_SCHEMA).run(jobRunConfig, launcherConfig, input));
   }
 
-  public StandardSyncOutput submitSync(long jobId, int attempt, JobSyncConfig config) throws TemporalJobException {
+  public TemporalResponse<StandardSyncOutput> submitSync(long jobId, int attempt, JobSyncConfig config) {
     final JobRunConfig jobRunConfig = TemporalUtils.createJobRunConfig(jobId, attempt);
 
     final IntegrationLauncherConfig sourceLauncherConfig = new IntegrationLauncherConfig()
@@ -127,13 +127,21 @@ public class TemporalClient {
     return client.newWorkflowStub(workflowClass, TemporalUtils.getWorkflowOptions(jobType));
   }
 
-  private <T> T execute(JobRunConfig jobRunConfig, Supplier<T> executor) throws TemporalJobException {
+  private <T> TemporalResponse<T> execute(JobRunConfig jobRunConfig, Supplier<T> executor) {
+    final Path jobRoot = WorkerUtils.getJobRoot(workspaceRoot, jobRunConfig);
+    final Path logPath = WorkerUtils.getLogPath(jobRoot);
+
+    T operationOutput = null;
+    RuntimeException exception = null;
+
     try {
-      return executor.get();
+      operationOutput = executor.get();
     } catch (RuntimeException e) {
-      final Path jobRoot = WorkerUtils.getJobRoot(workspaceRoot, jobRunConfig);
-      throw new TemporalJobException(WorkerUtils.getLogPath(jobRoot), e);
+      exception = e;
     }
+
+    final JobMetadata metadata = new JobMetadata(exception == null, logPath);
+    return new TemporalResponse<>(operationOutput, metadata);
   }
 
 }

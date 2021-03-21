@@ -8,7 +8,7 @@ dependencies {
     implementation project(':airbyte-db')
     implementation project(':airbyte-json-validation')
     implementation project(':airbyte-protocol:models')
-    implementation project(':airbyte-scheduler-data')
+    implementation project(':airbyte-scheduler:models')
 
     testImplementation "org.testcontainers:postgresql:1.15.1"
 }

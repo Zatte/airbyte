@@ -107,7 +107,7 @@ class DefaultSynchronousSchedulerClientTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    void testExecute() {
+    void testExecuteJobSuccess() {
       final UUID configId = UUID.randomUUID();
       final UUID jobTrackingId = UUID.randomUUID();
       final Function<UUID, TemporalResponse<String>> function = mock(Function.class);
@@ -129,7 +129,7 @@ class DefaultSynchronousSchedulerClientTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    void testExecuteTemporalJobException() {
+    void testExecuteJobFailure() {
       final UUID configId = UUID.randomUUID();
       final UUID jobTrackingId = UUID.randomUUID();
       final Function<UUID, TemporalResponse<String>> function = mock(Function.class);
@@ -170,7 +170,7 @@ class DefaultSynchronousSchedulerClientTest {
   class TestJobCreation {
 
     @Test
-    void testCreateSourceCheckConnectionJob() throws IOException {
+    void testCreateSourceCheckConnectionJob() {
       final JobCheckConnectionConfig jobCheckConnectionConfig = new JobCheckConnectionConfig()
           .withConnectionConfiguration(SOURCE_CONNECTION.getConfiguration())
           .withDockerImage(DOCKER_IMAGE);
@@ -184,7 +184,7 @@ class DefaultSynchronousSchedulerClientTest {
     }
 
     @Test
-    void testCreateDestinationCheckConnectionJob() throws IOException {
+    void testCreateDestinationCheckConnectionJob() {
       final JobCheckConnectionConfig jobCheckConnectionConfig = new JobCheckConnectionConfig()
           .withConnectionConfiguration(DESTINATION_CONNECTION.getConfiguration())
           .withDockerImage(DOCKER_IMAGE);
@@ -198,7 +198,7 @@ class DefaultSynchronousSchedulerClientTest {
     }
 
     @Test
-    void testCreateDiscoverSchemaJob() throws IOException {
+    void testCreateDiscoverSchemaJob() {
       final JobDiscoverCatalogConfig jobDiscoverCatalogConfig = new JobDiscoverCatalogConfig()
           .withConnectionConfiguration(SOURCE_CONNECTION.getConfiguration())
           .withDockerImage(DOCKER_IMAGE);

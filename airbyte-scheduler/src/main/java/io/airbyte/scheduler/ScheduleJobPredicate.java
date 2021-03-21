@@ -26,6 +26,7 @@ package io.airbyte.scheduler;
 
 import io.airbyte.config.StandardSyncSchedule;
 import io.airbyte.config.helpers.ScheduleHelpers;
+import io.airbyte.scheduler.data.Job;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.function.BiPredicate;

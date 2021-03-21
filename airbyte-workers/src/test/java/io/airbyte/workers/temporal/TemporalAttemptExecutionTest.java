@@ -33,7 +33,6 @@ import static org.mockito.Mockito.when;
 import io.airbyte.commons.functional.CheckedConsumer;
 import io.airbyte.commons.functional.CheckedFunction;
 import io.airbyte.scheduler.models.JobRunConfig;
-import io.airbyte.workers.WorkerConstants;
 import io.temporal.internal.common.CheckedExceptionWrapper;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -49,7 +48,6 @@ class TemporalAttemptExecutionTest {
   private static final JobRunConfig JOB_RUN_CONFIG = new JobRunConfig().withJobId(JOB_ID).withAttemptId((long) ATTEMPT_ID);
 
   private Path jobRoot;
-  private TemporalJobException expectedException;
 
   private CheckedFunction<Path, String, Exception> execution;
   private BiConsumer<Path, String> mdcSetter;
@@ -62,7 +60,6 @@ class TemporalAttemptExecutionTest {
   void setup() throws IOException {
     final Path workspaceRoot = Files.createTempDirectory(Path.of("/tmp"), "temporal_attempt_execution_test");
     jobRoot = workspaceRoot.resolve(String.valueOf(JOB_ID)).resolve(String.valueOf(ATTEMPT_ID));
-    expectedException = new TemporalJobException(jobRoot.resolve(WorkerConstants.LOG_FILENAME));
 
     execution = mock(CheckedFunction.class);
     mdcSetter = mock(BiConsumer.class);

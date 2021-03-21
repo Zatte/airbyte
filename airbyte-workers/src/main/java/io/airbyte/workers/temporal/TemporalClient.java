@@ -24,6 +24,7 @@
 
 package io.airbyte.workers.temporal;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.airbyte.config.JobCheckConnectionConfig;
 import io.airbyte.config.JobDiscoverCatalogConfig;
 import io.airbyte.config.JobGetSpecConfig;
@@ -127,7 +128,8 @@ public class TemporalClient {
     return client.newWorkflowStub(workflowClass, TemporalUtils.getWorkflowOptions(jobType));
   }
 
-  private <T> TemporalResponse<T> execute(JobRunConfig jobRunConfig, Supplier<T> executor) {
+  @VisibleForTesting
+  <T> TemporalResponse<T> execute(JobRunConfig jobRunConfig, Supplier<T> executor) {
     final Path jobRoot = WorkerUtils.getJobRoot(workspaceRoot, jobRunConfig);
     final Path logPath = WorkerUtils.getLogPath(jobRoot);
 
